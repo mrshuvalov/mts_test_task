@@ -8,8 +8,12 @@ export default new Vuex.Store({
   state: {
     status: "",
     user: "",
+    data: [],
   },
   mutations: {
+    write_data(state, response) {
+      state.data = response;
+    },
     auth_request(state) {
       state.status = "loading";
     },
@@ -23,7 +27,7 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         commit("auth_request");
         axios({
-          url: "http://0.0.0.0:8009/login/",
+          url: "http://0.0.0.0:8000/login/",
           data: user,
           method: "POST",
         })
@@ -41,7 +45,7 @@ export default new Vuex.Store({
     addValue(_, data) {
       new Promise((resolve, reject) => {
         axios({
-          url: "http://0.0.0.0:8009/add_data/",
+          url: "http://0.0.0.0:8000/add_data/",
           data: data,
           method: "POST",
         })
@@ -53,14 +57,14 @@ export default new Vuex.Store({
           });
       })
     },
-    getData(_, user) {
+    getData({commit}, user) {
       new Promise((resolve, reject) => {
         axios({
-          url: "http://0.0.0.0:8009/get_data/",
-          data: user,
+          url: `http://0.0.0.0:8000/get_data/?username=${user}`,
           method: "GET",
         })
           .then((resp) => {
+            commit("write_data", resp.data);
             resolve(resp);
           })
           .catch((err) => {
@@ -68,9 +72,5 @@ export default new Vuex.Store({
           });
       })
     }
-  },
-  getters: {
-    isLoggedIn: (state) => !!state.token,
-    authStatus: (state) => state.status,
   },
 });
